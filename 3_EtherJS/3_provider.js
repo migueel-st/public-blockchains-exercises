@@ -17,7 +17,10 @@ const path = require('path');
 // Hint: As you did in file 1_wallet.
 
 // Your code here!
-
+const ethers = require("ethers");
+let pathToDotEnv = path.join(process.cwd(), ".env");
+console.log(pathToDotEnv);
+require("dotenv").config({path: pathToDotEnv});
 
 // Exercise 1. Connect to Mainnet (a.k.a welcome async!).
 /////////////////////////////////////////////////////////
@@ -48,6 +51,9 @@ const path = require('path');
 
 // Your code here!
 
+const mainnetUrl = process.env.ALCHEMY_MAINNET_API_URL;
+console.log(mainnetUrl);
+const mainnetProvider = new ethers.JsonRpcProvider(mainnetUrl);
 
 // b. Verify that the network's name is "mainnet" and the chain id is 1.
 
@@ -58,27 +64,28 @@ const path = require('path');
 // large (integer) numbers. Remember to cast it to Number for a nicer display.
 // https://javascript.info/bigint 
 
+
 // b1. Use the async/await pattern to do the job.
 
 
 // This is an asynchronous anonymous self-executing function. It is a ugly
 // construct, but it allows you to use await inside its body.
-(async () => {
+// (async () => {
     
-    // Your code maybe here!
+//     // Your code maybe here!
 
-})();
+// })();
 
 // However, the async function could also be named, and the result is:
 const network = async () => {
-    
-    // Your code here!
-
+    let net = await mainnetProvider.getNetwork();
+    console.log('Async/Await!');
+    console.log('Provider\'s network name: ', net.name);
+    console.log('Provider\'s network chain id: ', Number(net.chainId));
 };
-
 // which you can then call:
 
-// network();
+network();
 
 // The second (less compact) notation has the advantage that we can invoke
 // the code only when needed, so it is preferred in this exercise sheet.
@@ -86,6 +93,14 @@ const network = async () => {
 // b2. Bonus. Re-write the code above using the promise standard notation.
 
 // Promises.
+
+let networkP = mainnetProvider.getNetwork();
+networkP.then(net => {
+    console.log("Promise!");
+    console.log("Network name: " + net.name);
+    console.log("Network chain id: " + net.chainId);
+});
+// console.log(mainnetProvider.getNetwork());
 
 // Checkpoint. We use `return` to terminate the execution insted
 // of process.exit(). Why?
@@ -102,11 +117,12 @@ const network = async () => {
 // // Look up the current block number
 const blockNum = async () => {
     
-    // Your code here!
+   let block = await mainnetProvider.getBlockNumber()
+   console.log("Current block on Ethereum mainnet: " + block);
+   return block
 
 };
 
-// blockNum();
 
 // b. The Ethereum mainnet is one of the most secure blockchains in the world.
 // The testnets of Ethereum are a bit less secure because they might have 
@@ -116,13 +132,15 @@ const blockNum = async () => {
 // Connect to the Goerli test net, get the latest block number and print
 // the difference in chain length with mainnet.
 
-
+let goerli = new ethers.JsonRpcProvider(process.env.INFURA_GOERLI_API_URL);
 // Look up the current block number in Mainnet and Goerli.
 const blockDiff = async () => {
-
+    let goerliBlocks = await goerli.getBlockNumber();
+    let mainnetBlocks = await mainnetProvider.getBlockNumber();
+    console.log("Difference: " + (mainnetBlocks - goerliBlocks));
 };
 
-// blockDiff();
+blockDiff();
 
 
 // Exercise 3. Block time.
@@ -192,10 +210,26 @@ const checkBlockTime = async (providerName = "mainnet", blocks2check = 3) => {
 // Do it! 
 // Hint: setInterval/clearInterval are replaced by on/off calls.
 
-const checkBlockTime2 = async (providerName = "mainnet", blocks2check = 3) => {
-
-    // Your code here!
-
+const checkBlockTime2 = async (providerName = "mainnet", blocks2check = 1) => {
+    // JS Ternary Operator.
+    let provider = providerName.toLowerCase() === "mainnet" ? 
+        mainnetProvider : goerli;
+    
+    let t1 = Date.now();
+    let blocksChecked = 0;
+    // This is kinda like a loop, we need to turn it off using provider.off
+    provider.on("block", (blockNumber) => {
+        let t2 = Date.now();
+        let blockTime = t2 - t1;
+        t1 = t2;
+        console.log("Net: " + providerName)
+        console.log("Creating block " + blockNumber);
+        blocksChecked++;
+        console.log("Took: " + blockTime/1000 + " s");
+        if (blocksChecked === blocks2check) {
+            provider.off("block");
+        }
+    })
 };
 
 // checkBlockTime2("mainnet");
@@ -212,7 +246,9 @@ const checkBlockTime2 = async (providerName = "mainnet", blocks2check = 3) => {
 // a. Look up the last block in Mainnet and print it to console.
 // Hint: first get the last block number, and then use .getBlock(blockNumber).
 
+
 // b. How many transactions does the block contains?
+
 
 // c. Pick a transaction and examine its receipt.
 // Hint: use getTransactionReceipt().
@@ -222,25 +258,33 @@ const checkBlockTime2 = async (providerName = "mainnet", blocks2check = 3) => {
 
 const blockInfo = async () => {
     
-    // Your code here!
-
+    let latestBlockNumber = await mainnetProvider.getBlockNumber();
+    let latestBlock = await mainnetProvider.getBlock(latestBlockNumber, true);
+    let selectedTransaction = latestBlock.transactions[0];
+    let transactionReceipt = await mainnetProvider.getTransactionReceipt(selectedTransaction);
+    console.log("Latest block number: " + latestBlockNumber);
+    console.log("From: " + transactionReceipt.from + " \nTo: " + transactionReceipt.to);
 };
 
-// blockInfo();
+blockInfo();
 
 // Exercise 5. ENS names.
 //////////////////////////
 
 // Resolve the name 'unima.eth' on the Goerli network, then lookup the
 // address.
-
+const sepoliaProvider = new ethers.JsonRpcProvider(process.env.INFURA_GOERLI_API_URL)
 const ens = async () => {
     
-    // Your code here!
+    let unimaAddress = await sepoliaProvider.resolveName('unima.eth');
+    console.log(unimaAddress);
+
+    let ensName = await sepoliaProvider.lookupAddress(unimaAddress);
+    console.log(ensName);
 
 };
 
-// ens();
+ens();
 
 
 // Exercise 6. Get ETH balance.
@@ -260,11 +304,22 @@ const ens = async () => {
 
 const balance = async (ensName = "unima.eth") => {
 
-   // Your code here!
+    // Get the balance for "unima.eth".
+    let bal = await sepoliaProvider.getBalance(ensName);
+    // console.log(bal);
+
+    // Nicely formatted.
+    console.log(ensName, "has", ethers.formatEther(bal), "ETH");
+
+    // Check the balance is the same when resolving the ens address.
+    let unimaAddress = await sepoliaProvider.resolveName(ensName);
+    let bal2 = await sepoliaProvider.getBalance(unimaAddress);
+    
+    console.log('Are the two balances equal?', bal === bal2 ? 'Yes' : 'No');
 
 };
 
-// balance("vitalik.eth");
+balance("unima.eth");
 
 
 // Exercise 7. Get ERC20 Balance.

@@ -1,9 +1,7 @@
 // Loading path module for operations with file paths.
 const path = require('path');
-
 function exit() {
     console.log('Exercise ' + exercise + ' completed.');
-    process.exit(0);
     console.log('I will not be printed to console :(');
 }
 
@@ -40,8 +38,8 @@ console.log(pathToDotEnv);
 // Hint: use path.join(...) to build a relative path to the .env file. 
 
 // Edit this line, then load the .env file:
-// pathToDotEnv = path.join(...);
-console.log(pathToDotEnv);
+// pathToDotEnv = path.join(__dirname, "..", "..", ".env");
+// console.log(pathToDotEnv);
 
 // Your code here.
 
@@ -50,7 +48,14 @@ console.log(pathToDotEnv);
 
 // Your code here.
 
+require('dotenv').config({path: pathToDotEnv});
 
+const fs = require('fs');
+
+console.log(pathToDotEnv);
+if (fs.existsSync(pathToDotEnv)) {
+    console.log('You found the .env file!');
+}
 
 
 // Exercise 2. Create and fill in .env file.
@@ -77,9 +82,6 @@ exercise = 2;
  
 // See if it worked.
 console.log(process.env);
-
-// exit();
-
 // Exercise 3. Check the content of the .env file.
 //////////////////////////////////////////////////
 
@@ -92,13 +94,18 @@ exercise = '3a';
 // if statement that prints a warning message if empty.
 // Hint: https://javascript.info/ifelse
 
-// Your code here!
-
-// exit();
+if (process.env.METAMASK_ACCOUNT_1 === undefined) {
+    console.log("Wraning METAMASK_ACCOUNT_1 environment variable is not defined.");
+}
 
 // b. Create an array with all the names of the variables written in the .env
 // file. Then print the lenght of the array.
 // Hint: https://javascript.info/array
+
+let variablesToCheck = ["ALCHEMY_KEY", "METAMASK_KEY"];
+
+console.log('Num of variables in .env to check: ', variablesToCheck.length);
+
 
 exercise = '3b';
 
@@ -116,14 +123,16 @@ exercise = '3b';
 
 // Solution 1. forEach.
 variablesToCheck.forEach(v => {
-    // Your code here!
+    if (process.env[v] === undefined) {
+        console.log(`Variable ${v} is not set`)
+    }
 });
 
-// Solution 2. For-loop.
 
 // Your code here!
 
 
-// exit();
+exit();
+process.exit(0);
 
 

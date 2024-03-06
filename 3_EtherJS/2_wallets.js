@@ -7,7 +7,6 @@
 function exit() {
     console.log('Exercise ' + exercise + ' completed.');
     process.exit(0);
-    console.log('I will not be printed to console :(');
 }
 
 // Exercise 1. Create a Random Wallet.
@@ -20,8 +19,8 @@ const ethers = require("ethers");
 // and the mnenomic phrase.
 // Hint: ethers.Wallet.createRandom();
 
-
-// exit();
+let randomWallet = ethers.Wallet.createRandom();
+console.log(randomWallet);
 
 // b. Bonus. Print the derivation path of the wallet and check that it is
 // equal to `baseDevPath`. 
@@ -29,6 +28,12 @@ const ethers = require("ethers");
 exercise = '1b';
 
 let baseDevPath = "m/44'/60'/0'/0/";
+if (randomWallet.path === baseDevPath) {
+    console.log("Derivation path is equal ot baseDevPath");
+} else {
+    console.log("Derivation path is NOT equal to baseDevPath");
+}
+
 
 // Wait is the derivation path? 
 // Basically, the mnemonic alone isn't enough to determine an address
@@ -36,9 +41,6 @@ let baseDevPath = "m/44'/60'/0'/0/";
 // https://www.youtube.com/watch?v=tPCN3nDVzZI
 // Also:
 // https://vault12.com/securemycrypto/crypto-security-basics/what-is-bip39/
-
-
-console.log("Derivation path:", wallet.path);
 
 // Your code here!
 
@@ -55,6 +57,18 @@ exercise = 2;
 // finally print the first 10 addresses and private keys generated.
 // Hint: You need to append an index to the derivation path.
 
-// Your code here!
+// To create a wallet we do so by giving a mnemonic and a deriavtion path
+// By changing the derivatino path we change the address of the wallet????
 
-// exit();
+let mnemonic = randomWallet.mnemonic.phrase;
+
+let path, myWallet;
+for (let i = 0; i < 10; i++) {
+  path = `${baseDevPath}${i}`;
+  myWallet = ethers.HDNodeWallet.fromPhrase(mnemonic, path);
+  console.log("Address", i, myWallet.address);
+  console.log("Private key", i, myWallet.privateKey);
+}
+
+
+exit();

@@ -35,7 +35,7 @@
 // be executed, until you tell the process to stop. 
 
 // This line will tell the process to stop.
-process.exit(0);
+// process.exit(0);
 console.log('I am a sad line...I will not be printed to console :(');
 
 // a. Move the sad line above and below `process.exit(0);` to check that the
@@ -87,5 +87,4 @@ exercise = 1;
 // Hint3: don't forget to uncomment the call to `exit()`.
 
 require('dotenv').config();
-
 // exit();
