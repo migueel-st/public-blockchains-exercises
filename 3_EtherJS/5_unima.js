@@ -9,6 +9,9 @@
 
 // Your code here!
 
+const ethers = require("ethers");
+const path = require("path");
+require("dotenv").config({path: path.join(process.cwd(), ".env")});
 
 // Exercise 1. Create a JSON RPC Provider for the (not) UniMa Blockchain.
 /////////////////////////////////////////////////////////////////////////

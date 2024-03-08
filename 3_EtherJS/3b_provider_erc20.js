@@ -18,17 +18,13 @@ const path = require('path');
 
 // Require packages.
 
-pathToDotEnv = path.join(__dirname, '..', '..', '.env');
+pathToDotEnv = path.join(process.cwd(), '.env');
 // console.log(pathToDotEnv);
 require("dotenv").config({ path: pathToDotEnv });
 
 const ethers = require("ethers");
 
-const providerKey = process.env.ALCHEMY_KEY;
-
-const goerliUrl = `${process.env.ALCHEMY_GOERLI_API_URL}${providerKey}`;
-// console.log(goerliUrl);
-const goerliProvider = new ethers.JsonRpcProvider(goerliUrl);
+const goerliProvider = new ethers.JsonRpcProvider(process.env.INFURA_GOERLI_API_URL);
 
 // Exercise 1. Bonus. Get ERC20 Balance.
 ////////////////////////////////////////
@@ -57,10 +53,11 @@ const linkABI = require('./link_abi.json');
 // https://faucets.chain.link/goerli
 
 const link = async () => {
-   
-    // Your code here!
+    const contract = new ethers.Contract(linkAddress, linkABI, goerliProvider);
+    const linkBalance = await contract.balanceOf("vitalik.eth");
+    console.log(ethers.formatEther(linkBalance));
 };
 
 
-// link();
+link();
 
