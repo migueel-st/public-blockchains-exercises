@@ -8,7 +8,10 @@
 // Hint: As you did multiple times now.
 
 // Your code here!
-
+const ethers = require("ethers");
+const path = require("path");
+let pathToEnv = path.join(process.cwd(), ".env");
+require("dotenv").config( {path : pathToEnv});
 
 // Exercise 1. Create a JSON RPC Provider for the Hardhat blockchain.
 /////////////////////////////////////////////////////////////////////
@@ -17,6 +20,7 @@
 // blockchain.
 
 // Your code here!
+const hardhat = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
 
 // Exercise 2. Let's query the provider.
 ////////////////////////////////////////
@@ -26,10 +30,15 @@
 
 const networkInfo = async () => {
    
-    // Your code here!
+    let network = await hardhat.getNetwork();
+    console.log("Network name: " + network.name);
+    console.log("Chain ID: " + network.chainId);
+    let blockNumber = await hardhat.getBlockNumber();
+    console.log("Block number : " + blockNumber);
+
 };
 
-// networkInfo();
+networkInfo();
 
 
 
@@ -41,23 +50,28 @@ const networkInfo = async () => {
 // Hint: check the Hardhat console output.
 
 // Your code here.
-
+let signer = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80");
 // b. Check the balance of the signer.
-
 const checkBalance = async () => {
     // Your code here.
+    let balance = await hardhat.getBalance(signer.address);
+    console.log("Balance: " + ethers.formatEther(balance));
 };
 
-// checkBalance();
+checkBalance();
 
 // c. Print the signer's next nonce necessary to send a transaction.
 // Hint: .getNonce()
 
 const getNonce = async() => {
     // Your code here.
+    // First you need to connect to the hardhat blockchain
+    signer = signer.connect(hardhat);
+    let nonce = await signer.getNonce();
+    console.log("Next nonce: " + nonce);
 };
 
-// getNonce();
+getNonce();
 
 
 // Exercise 4. Send a transaction.
@@ -68,11 +82,31 @@ const getNonce = async() => {
 // this course).
 
 const account2 = process.env.METAMASK_2_ADDRESS;
+// let metamaskSigner = new ethers.Wallet(process.env.METAMASK_KEY);
 
 const sendTransaction = async () => {
 
     // Your code here!
+    signer = signer.connect(hardhat);
+    let srcBalance = ethers.formatEther(await hardhat.getBalance(signer.address));
+    let dstBalance = ethers.formatEther(await hardhat.getBalance(account2));
+    console.log("Account 1 balance: " + srcBalance);
+    console.log("Account 2 balance: " + dstBalance);
+    // Send transaction
+    tx = await signer.sendTransaction({
+        to: account2,
+        value: ethers.parseEther("100")
+    });
+    // After sending the transaction we need to wait for it to be mined
+    console.log("Transaction is in the mempool")
+    await tx.wait();
+    console.log("Transaction complete!")
+    srcBalance = ethers.formatEther(await hardhat.getBalance(signer.address));
+    dstBalance = ethers.formatEther(await hardhat.getBalance(account2));
+    console.log("Account 1 balance: " + srcBalance);
+    console.log("Account 2 balance: " + dstBalance);
+
 };
 
-// sendTransaction();
+sendTransaction();
 
