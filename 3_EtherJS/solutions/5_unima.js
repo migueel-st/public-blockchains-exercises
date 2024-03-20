@@ -45,7 +45,7 @@ const networkInfo = async () => {
     console.log('Block number: ', blockNumber);
 };
 
-// networkInfo();
+networkInfo();
 
 
 // Exercise 3. Connect a signer to the (not) UniMa blockchain.
@@ -54,7 +54,7 @@ const networkInfo = async () => {
 // a. Use the same non-sensitive private key used in 3_signer.js.
 
 
-const signer = new ethers.Wallet(process.env.METAMASK_1_PRIVATE_KEY,
+const signer = new ethers.Wallet(process.env.METAMASK_KEY,
                                  notUniMaProvider);
 
 // b. Print the next nonce necessary to send a transaction.
@@ -66,7 +66,7 @@ const getNonce = async() => {
     console.log('Your nonce is ' + nonce);
 };
 
-// getNonce();
+getNonce();
 
 // Checkpoint. Is the nonce in the (not) Unima blockchain different
 // than in Goerli?
@@ -88,7 +88,7 @@ const checkBalance = async () => {
     console.log('My balance is ' + ethers.formatEther(balance) + ' NUMETH.');
 };
 
-// checkBalance();
+checkBalance();
 
 // Exercise 5. Send a transaction.
 //////////////////////////////////
